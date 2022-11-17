@@ -1,8 +1,20 @@
-const { Client, GatewayIntentBits, Partials } = require("discord.js");
-const { DisTube } = require("distube");
-const { SpotifyPlugin } = require("@distube/spotify");
-const { SoundCloudPlugin } = require("@distube/soundcloud");
-const { YtDlpPlugin } = require("@distube/yt-dlp");
+const {
+  Client,
+  GatewayIntentBits,
+  Partials
+} = require("discord.js");
+const {
+  DisTube
+} = require("distube");
+const {
+  SpotifyPlugin
+} = require("@distube/spotify");
+const {
+  SoundCloudPlugin
+} = require("@distube/soundcloud");
+const {
+  YtDlpPlugin
+} = require("@distube/yt-dlp");
 const config = require("./config");
 const fs = require("fs");
 const client = new Client({

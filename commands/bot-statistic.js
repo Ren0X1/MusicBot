@@ -1,20 +1,28 @@
-const { EmbedBuilder, version } = require("discord.js")
+const {
+  EmbedBuilder,
+  version
+} = require("discord.js")
 const config = require("../config.js");
 const db = require("../mongoDB");
 module.exports = {
   name: "statistic",
-  description: "View your bot statistics.",
+  description: "Ver sus estadísticas de bot.",
   options: [],
   permissions: "0x0000000000000800",
   run: async (client, interaction) => {
-    let lang = await db?.musicbot?.findOne({ guildID: interaction.guild.id })
+    let lang = await db?.musicbot?.findOne({
+      guildID: interaction.guild.id
+    })
     lang = lang?.language || client.language
     lang = require(`../languages/${lang}.js`);
     try {
 
       const embed = new EmbedBuilder()
         .setTitle(client.user.username + lang.msg19)
-        .setThumbnail(client.user.displayAvatarURL({ dynamic: true, size: 1024 }))
+        .setThumbnail(client.user.displayAvatarURL({
+          dynamic: true,
+          size: 1024
+        }))
         .setDescription(`**
     • Owner: \`${client.users.cache.get(config.ownerID)?.tag || "Undefined"}\`
     • Developer: \`Umut#6070\`
@@ -34,23 +42,52 @@ module.exports = {
     **`)
         .setColor(client.config.embedColor)
         .setTimestamp()
-      return interaction.reply({ embeds: [embed] }).catch(err => { })
+      return interaction.reply({
+        embeds: [embed]
+      }).catch(err => {})
 
     } catch (e) {
       if (client.errorLog) {
         let embed = new EmbedBuilder()
           .setColor(client.config.embedColor)
           .setTimestamp()
-          .addFields([
-            { name: "Command", value: `${interaction?.commandName}` },
-            { name: "Error", value: `${e.stack}` },
-            { name: "User", value: `${interaction?.user?.tag} \`(${interaction?.user?.id})\``, inline: true },
-            { name: "Guild", value: `${interaction?.guild?.name} \`(${interaction?.guild?.id})\``, inline: true },
-            { name: "Time", value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true },
-            { name: "Command Usage Channel", value: `${interaction?.channel?.name} \`(${interaction?.channel?.id})\``, inline: true },
-            { name: "User Voice Channel", value: `${interaction?.member?.voice?.channel?.name} \`(${interaction?.member?.voice?.channel?.id})\``, inline: true },
+          .addFields([{
+              name: "Command",
+              value: `${interaction?.commandName}`
+            },
+            {
+              name: "Error",
+              value: `${e.stack}`
+            },
+            {
+              name: "User",
+              value: `${interaction?.user?.tag} \`(${interaction?.user?.id})\``,
+              inline: true
+            },
+            {
+              name: "Guild",
+              value: `${interaction?.guild?.name} \`(${interaction?.guild?.id})\``,
+              inline: true
+            },
+            {
+              name: "Time",
+              value: `<t:${Math.floor(Date.now() / 1000)}:R>`,
+              inline: true
+            },
+            {
+              name: "Command Usage Channel",
+              value: `${interaction?.channel?.name} \`(${interaction?.channel?.id})\``,
+              inline: true
+            },
+            {
+              name: "User Voice Channel",
+              value: `${interaction?.member?.voice?.channel?.name} \`(${interaction?.member?.voice?.channel?.id})\``,
+              inline: true
+            },
           ])
-        await client.errorLog.send({ embeds: [embed] }).catch(e => { })
+        await client.errorLog.send({
+          embeds: [embed]
+        }).catch(e => {})
       } else {
         console.log(`
     Command: ${interaction?.commandName}
@@ -61,7 +98,10 @@ module.exports = {
     User Voice Channel: ${interaction?.member?.voice?.channel?.name} (${interaction?.member?.voice?.channel?.id})
     `)
       }
-      return interaction.reply({ content: `${lang.error7}\n\`${e}\``, ephemeral: true }).catch(e => { })
+      return interaction.reply({
+        content: `${lang.error7}\n\`${e}\``,
+        ephemeral: true
+      }).catch(e => {})
     }
   },
 };

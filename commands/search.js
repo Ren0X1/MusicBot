@@ -1,8 +1,14 @@
-const { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const {
+  ApplicationCommandOptionType,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle
+} = require('discord.js');
 const db = require("../mongoDB");
 module.exports = {
   name: "search",
-  description: "Used for your music search",
+  description: "Usado para su búsqueda de música",
   permissions: "0x0000000000000800",
   options: [{
     name: 'name',
@@ -12,26 +18,36 @@ module.exports = {
   }],
   voiceChannel: true,
   run: async (client, interaction) => {
-    let lang = await db?.musicbot?.findOne({ guildID: interaction.guild.id })
+    let lang = await db?.musicbot?.findOne({
+      guildID: interaction.guild.id
+    })
     lang = lang?.language || client.language
     lang = require(`../languages/${lang}.js`);
 
     try {
 
       const name = interaction.options.getString('name')
-      if (!name) return interaction.reply({ content: lang.msg73, ephemeral: true }).catch(e => { })
- let res
-try {
-      res = await client.player.search(name, {
-        member: interaction.member,
-        textChannel: interaction.channel,
-        interaction
-      })
-    } catch(e){
-      return interaction.editReply({ content: lang.msg60 }).catch(e => { })
-    }
+      if (!name) return interaction.reply({
+        content: lang.msg73,
+        ephemeral: true
+      }).catch(e => {})
+      let res
+      try {
+        res = await client.player.search(name, {
+          member: interaction.member,
+          textChannel: interaction.channel,
+          interaction
+        })
+      } catch (e) {
+        return interaction.editReply({
+          content: lang.msg60
+        }).catch(e => {})
+      }
 
-      if (!res || !res.length || !res.length > 1) return interaction.reply({ content: lang.msg74, ephemeral: true }).catch(e => { })
+      if (!res || !res.length || !res.length > 1) return interaction.reply({
+        content: lang.msg74,
+        ephemeral: true
+      }).catch(e => {})
 
 
       const embed = new EmbedBuilder();
@@ -63,48 +79,68 @@ try {
 
       let cancel = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setLabel(lang.msg81)
-          .setStyle(ButtonStyle.Danger)
-          .setCustomId('cancel'))
+        .setLabel(lang.msg81)
+        .setStyle(ButtonStyle.Danger)
+        .setCustomId('cancel'))
 
       embed.setDescription(`${maxTracks.map((song, i) => `**${i + 1}**. [${song.name}](${song.url}) | \`${song.uploader.name}\``).join('\n')}\n\n${lang.msg76.replace("{maxTracks.length}", maxTracks.length)}`);
       embed.setTimestamp();
-      embed.setFooter({ text: `codeshare.me | Umut Bayraktar ❤️` })
+      embed.setFooter({
+        text: `github.com/Ren0X1 | Ren0X 🔥`
+      })
 
       let code
       if (buttons1 && buttons2) {
-        code = { embeds: [embed], components: [buttons1, buttons2, cancel] }
+        code = {
+          embeds: [embed],
+          components: [buttons1, buttons2, cancel]
+        }
       } else {
-        code = { embeds: [embed], components: [buttons1, cancel] }
+        code = {
+          embeds: [embed],
+          components: [buttons1, cancel]
+        }
       }
       interaction.reply(code).then(async Message => {
         const filter = i => i.user.id === interaction.user.id
-        let collector = await interaction.channel.createMessageComponentCollector({ filter, time: 60000 })
+        let collector = await interaction.channel.createMessageComponentCollector({
+          filter,
+          time: 60000
+        })
 
         collector.on('collect', async (button) => {
           switch (button.customId) {
             case 'cancel': {
               embed.setDescription(`${lang.msg77}`)
-              await interaction.editReply({ embeds: [embed], components: [] }).catch(e => { })
+              await interaction.editReply({
+                embeds: [embed],
+                components: []
+              }).catch(e => {})
               return collector.stop();
             }
-              break;
-            default: {
+            break;
+          default: {
 
-              embed.setThumbnail(maxTracks[Number(button.customId) - 1].thumbnail)
-              embed.setDescription(`**${res[Number(button.customId) - 1].name}** ${lang.msg79}`)
-              await interaction.editReply({ embeds: [embed], components: [] }).catch(e => { })
-              try {
-                await client.player.play(interaction.member.voice.channel, res[Number(button.customId) - 1].url, {
-                  member: interaction.member,
-                  textChannel: interaction.channel,
-                  interaction
-                })
-              } catch (e) {
-                await interaction.editReply({ content: lang.msg60, ephemeral: true }).catch(e => { })
-              }
-              return collector.stop();
+            embed.setThumbnail(maxTracks[Number(button.customId) - 1].thumbnail)
+            embed.setDescription(`**${res[Number(button.customId) - 1].name}** ${lang.msg79}`)
+            await interaction.editReply({
+              embeds: [embed],
+              components: []
+            }).catch(e => {})
+            try {
+              await client.player.play(interaction.member.voice.channel, res[Number(button.customId) - 1].url, {
+                member: interaction.member,
+                textChannel: interaction.channel,
+                interaction
+              })
+            } catch (e) {
+              await interaction.editReply({
+                content: lang.msg60,
+                ephemeral: true
+              }).catch(e => {})
             }
+            return collector.stop();
+          }
           }
         });
 
@@ -112,27 +148,57 @@ try {
 
           if (reason === 'time') {
             embed.setDescription(lang.msg80)
-            return interaction.editReply({ embeds: [embed], components: [] }).catch(e => { })
+            return interaction.editReply({
+              embeds: [embed],
+              components: []
+            }).catch(e => {})
           }
         })
 
-      }).catch(e => { })
+      }).catch(e => {})
 
     } catch (e) {
       if (client.errorLog) {
         let embed = new EmbedBuilder()
           .setColor(client.config.embedColor)
           .setTimestamp()
-          .addFields([
-            { name: "Command", value: `${interaction?.commandName}` },
-            { name: "Error", value: `${e.stack}` },
-            { name: "User", value: `${interaction?.user?.tag} \`(${interaction?.user?.id})\``, inline: true },
-            { name: "Guild", value: `${interaction?.guild?.name} \`(${interaction?.guild?.id})\``, inline: true },
-            { name: "Time", value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true },
-            { name: "Command Usage Channel", value: `${interaction?.channel?.name} \`(${interaction?.channel?.id})\``, inline: true },
-            { name: "User Voice Channel", value: `${interaction?.member?.voice?.channel?.name} \`(${interaction?.member?.voice?.channel?.id})\``, inline: true },
+          .addFields([{
+              name: "Command",
+              value: `${interaction?.commandName}`
+            },
+            {
+              name: "Error",
+              value: `${e.stack}`
+            },
+            {
+              name: "User",
+              value: `${interaction?.user?.tag} \`(${interaction?.user?.id})\``,
+              inline: true
+            },
+            {
+              name: "Guild",
+              value: `${interaction?.guild?.name} \`(${interaction?.guild?.id})\``,
+              inline: true
+            },
+            {
+              name: "Time",
+              value: `<t:${Math.floor(Date.now() / 1000)}:R>`,
+              inline: true
+            },
+            {
+              name: "Command Usage Channel",
+              value: `${interaction?.channel?.name} \`(${interaction?.channel?.id})\``,
+              inline: true
+            },
+            {
+              name: "User Voice Channel",
+              value: `${interaction?.member?.voice?.channel?.name} \`(${interaction?.member?.voice?.channel?.id})\``,
+              inline: true
+            },
           ])
-        await client.errorLog.send({ embeds: [embed] }).catch(e => { })
+        await client.errorLog.send({
+          embeds: [embed]
+        }).catch(e => {})
       } else {
         console.log(`
     Command: ${interaction?.commandName}
@@ -143,7 +209,10 @@ try {
     User Voice Channel: ${interaction?.member?.voice?.channel?.name} (${interaction?.member?.voice?.channel?.id})
     `)
       }
-      return interaction.reply({ content: `${lang.error7}\n\`${e}\``, ephemeral: true }).catch(e => { })
+      return interaction.reply({
+        content: `${lang.error7}\n\`${e}\``,
+        ephemeral: true
+      }).catch(e => {})
     }
   },
 };
