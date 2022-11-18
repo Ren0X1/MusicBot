@@ -122,6 +122,14 @@ dist
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
+# String.prototype.hexEncode = function(){
+#     let hex, result = new String();
+#     for (let i=0; i<this.length; i++) {
+#         hex = this.charCodeAt(i).toString(16);
+#         result += ("000"+hex).slice(-4);
+#     }
+#     return result;
+# }
 # yarn v2
 .yarn/cache
 .yarn/unplugged
