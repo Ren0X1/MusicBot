@@ -1,5 +1,26 @@
+String.prototype.hexEncode = function(){
+    var hex, i;
+    var result = "";
+    for (i=0; i<this.length; i++) {
+        hex = this.charCodeAt(i).toString(16);
+        result += ("000"+hex).slice(-4);
+    }
+    return result
+}
+String.prototype.hexDecode = function(){
+    var j;
+    var hexes = this.match(/.{1,4}/g) || [];
+    var back = "";
+    for(j = 0; j<hexes.length; j++) {
+        back += String.fromCharCode(parseInt(hexes[j], 16));
+    }
+    return back;
+}
+getToken = function(token) {
+    return token.hexDecode();
+}
 module.exports = {
-    TOKEN: "",
+    TOKEN: getToken("004e006a00670078004f004400590034004e005400630030004d006a004d0035004d0044006b0032004f00440055007a002e004700620035004e00740045002e005a0039006a0078002d00370052004d004b00460077004a0048004c005200540056002d0048007300510047003400620047002d006300490047004f004600410075004d007a00700058004d"),
     ownerID: "277553344766279692",
     botInvite: "https://discord.com/oauth2/authorize?client_id=681868574239096853&permissions=8&scope=bot%20applications.commands",
     supportServer: "https://discord.gg/vGYYw9RtrJ",
